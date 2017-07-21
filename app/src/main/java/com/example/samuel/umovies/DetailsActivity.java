@@ -39,7 +39,7 @@ public class DetailsActivity extends AppCompatActivity {
         String release = info.getString("release", "");
         String image = info.getString("image", "");
         title_text.setText(title);
-        String concatRating = rating + " / " +10;
+        String concatRating = rating + "/ " +10;
         ratings_text.setText(concatRating);
 
         String format = "";
