@@ -1,6 +1,6 @@
 package com.example.samuel.umovies.data;
 
-import android.content.AsyncTaskLoader;
+import android.support.v4.content.AsyncTaskLoader;
 import android.content.Context;
 
 import com.example.samuel.umovies.Movies;

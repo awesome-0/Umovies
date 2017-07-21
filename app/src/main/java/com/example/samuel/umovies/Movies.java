@@ -11,6 +11,9 @@ public class Movies {
     private String synopsis;
     private String release_date;
 
+    public Movies() {
+    }
+
     public Movies(String title, String image, String user_rating, String synopsis, String release_date) {
         this.title = title;
         this.image = image;

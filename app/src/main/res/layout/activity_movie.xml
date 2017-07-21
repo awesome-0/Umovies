@@ -1,12 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/Recycler_view"
-    tools:context="com.example.samuel.umovies.MovieActivity">
+    android:id="@+id/relative_layout"
+   >
+
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progress_bar"
+        android:layout_centerInParent="true"
+        android:visibility="visible"
+
+
+        />
+      <TextView
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:id="@+id/error_text"
+          android:layout_below="@+id/progress_bar"
+          android:layout_centerInParent="true"
+          android:text="awesome"
+          android:textSize="15sp"
+          android:visibility="gone"
+
+          />
+  <android.support.v7.widget.RecyclerView
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:id="@+id/Recycler_view"
+      tools:context="com.example.samuel.umovies.MovieActivity">
 
 
 
 </android.support.v7.widget.RecyclerView>
+</RelativeLayout>

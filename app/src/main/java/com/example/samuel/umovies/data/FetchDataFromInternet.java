@@ -1,5 +1,7 @@
 package com.example.samuel.umovies.data;
 
+import android.util.Log;
+
 import com.example.samuel.umovies.Movies;
 
 import org.json.JSONArray;
@@ -44,7 +46,7 @@ public class FetchDataFromInternet {
         try {
             connection = (HttpURLConnection) url.openConnection();
             connection.connect();
-            if(connection.getResponseCode() == 200){
+
 
                 stream = connection.getInputStream();
                 InputStreamReader streamReader = new InputStreamReader(stream);
@@ -55,10 +57,13 @@ public class FetchDataFromInternet {
                 while(( line = reader.readLine())!= null){
                     buffer.append(line);
 
+
                 }
+                Log.d("buffer","" +buffer.length());
                 return buffer.toString();
-            }
-            return  null;
+
+
+
         } catch (IOException e) {
             e.printStackTrace();
 
