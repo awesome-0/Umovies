@@ -27,6 +27,13 @@ import com.example.samuel.umovies.data.MoviesLoader;
 
 import java.util.ArrayList;
 
+/*
+*   Designed by Samuel Orji
+*   awesomeorji@gmail.com
+*
+*
+ */
+
 public class MovieActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<Movies>>,SharedPreferences.OnSharedPreferenceChangeListener, SwipeRefreshLayout.OnRefreshListener{
     private ProgressBar progressBar;
     private RecyclerView recyclerView;
