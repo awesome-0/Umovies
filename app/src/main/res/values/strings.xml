@@ -13,7 +13,7 @@
     <string name="popular">popular</string>
     <string name="settings">Settings</string>
     <string name="movies">Movies</string>
-    <string name="api_key">d48eb72bb65495581cfe2b9ab8ec9d88</string>
+    <string name="api_key"> </string>
     <string name="details">Details</string>
     <string name="no_internet">No Internet Connection</string>
     <string name="broken_connection">Connection error...Swipe down to Retry</string>

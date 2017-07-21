@@ -120,7 +120,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
                 .appendPath("movie")
                 .appendPath(criteria)
                 //here you add your api key, had to remove my own
-                .appendQueryParameter("api_key",getString(R.string.api_key))
+                .appendQueryParameter("api_key",/*add your api key here*/)
                 .appendQueryParameter("language","en-US")
                 .appendQueryParameter("page","1").build();
         if(isConnected()){
