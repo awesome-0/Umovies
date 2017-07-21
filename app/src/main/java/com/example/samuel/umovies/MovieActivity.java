@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.preference.Preference;
@@ -26,13 +27,14 @@ import com.example.samuel.umovies.data.MoviesLoader;
 
 import java.util.ArrayList;
 
-public class MovieActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<Movies>>,SharedPreferences.OnSharedPreferenceChangeListener {
+public class MovieActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<Movies>>,SharedPreferences.OnSharedPreferenceChangeListener, SwipeRefreshLayout.OnRefreshListener{
     private ProgressBar progressBar;
     private RecyclerView recyclerView;
     private MovieAdapter adapter;
     private static final int MOVIE_LOADER_ID =1;
     private TextView error_text;
     private ArrayList<Movies> movies = null;
+    private SwipeRefreshLayout refreshLayout;
 
     GridLayoutManager manager;
 
@@ -43,6 +45,15 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         recyclerView = (RecyclerView) findViewById(R.id.Recycler_view);
         error_text = (TextView) findViewById(R.id.error_text);
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_container);
+
+//        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+//            @Override
+//            public void onRefresh() {
+//                getLoaderManager().restartLoader(MOVIE_LOADER_ID,null,getApplicationContext());
+//            }
+//        });
+        refreshLayout.setOnRefreshListener(this);
         getSupportLoaderManager().initLoader(MOVIE_LOADER_ID,null,this);
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
     }
@@ -113,6 +124,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
                 .appendQueryParameter("language","en-US")
                 .appendQueryParameter("page","1").build();
         if(isConnected()){
+            error_text.setText("");
 
             return new MoviesLoader(this,builder.toString());
         }
@@ -164,5 +176,16 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         if(key.equals(getString(R.string.list_preference_key))){
             getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID,null,this);
         }
+    }
+
+    @Override
+    public void onRefresh() {
+        getSupportLoaderManager().destroyLoader(MOVIE_LOADER_ID);
+        getSupportLoaderManager().initLoader(MOVIE_LOADER_ID,null,this);
+        refreshLayout.setRefreshing(false);
+    }
+    public void restartLoader(){
+
+
     }
 }
