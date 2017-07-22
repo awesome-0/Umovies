@@ -97,7 +97,8 @@ public class FetchDataFromInternet {
                 String image = actual_object.getString("poster_path");
                 String synopsis = actual_object.getString("overview");
                 String rating = actual_object.getString("vote_average");
-                movie.add(new Movies(title,image,rating,synopsis,release_date));
+                String id = actual_object.getString("id");
+                movie.add(new Movies(title,image,rating,synopsis,release_date,id));
 
             }
             return movie;

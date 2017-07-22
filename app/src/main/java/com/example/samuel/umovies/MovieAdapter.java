@@ -20,11 +20,7 @@ import java.util.ArrayList;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.movieHolder> {
     ArrayList<Movies>movies = new ArrayList<>();
     final Context context;
-    private static String mTitle;
-    private static String mRelease;
-    private static String mRating;
-    private static String mSynopsis;
-    private static String mImage;
+
 
 
     public MovieAdapter(Context context,ArrayList<Movies>movies) {
@@ -61,18 +57,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.movieHolder>
         return movies.size();
     }
 
-    public void SendIntent(){
-        Intent detailsIntent = new Intent(context,DetailsActivity.class);
 
-        detailsIntent.putExtra("title",mTitle);
-        detailsIntent.putExtra("synopsis",mSynopsis);
-        detailsIntent.putExtra("rating",mRating);
-        detailsIntent.putExtra("release",mRelease);
-        detailsIntent.putExtra("image",mImage);
-        context.startActivity(detailsIntent);
-
-
-    }
 
     public static class movieHolder extends RecyclerView.ViewHolder{
 
@@ -90,11 +75,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.movieHolder>
               public void onClick(View v) {
                   Intent detailsIntent = new Intent(itemView.getContext(),DetailsActivity.class);
                   Movies movie = (Movies) itemView.getTag();
-                  detailsIntent.putExtra("title",movie.getTitle());
-                  detailsIntent.putExtra("synopsis",movie.getSynopsis());
-                  detailsIntent.putExtra("rating",movie.getUser_rating());
-                  detailsIntent.putExtra("release",movie.getRelease_date());
-                  detailsIntent.putExtra("image",movie.getImage());
+                  detailsIntent.putExtra("id",movie.getId());
+                  detailsIntent.putExtra("position",getAdapterPosition());
                   itemView.getContext().startActivity(detailsIntent);
 
 

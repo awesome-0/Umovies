@@ -4,12 +4,44 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/details_progress_bar"
+        android:layout_centerInParent="true"
+        android:visibility="visible"
+
+
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/details_error_text"
+        android:layout_below="@+id/details_progress_bar"
+        android:layout_centerInParent="true"
+        android:text="awesome"
+        android:textSize="15sp"
+        android:visibility="gone"
+
+        />
+
+
+<LinearLayout
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="16dp"
     android:paddingLeft="16dp"
     android:paddingBottom="16dp"
     android:paddingRight="5dp"
+    android:id="@+id/details_layout"
+    android:visibility="visible"
     >
+
+
 <LinearLayout
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -21,13 +53,25 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        >
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
         <ImageView
             android:layout_width="200dp"
             android:layout_height="250dp"
             android:id="@+id/details_image"
             />
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_play_circle_outline_white_24dp"
+                />
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -45,8 +89,6 @@
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-medium"/>
 
-
-
             <TextView
                 android:id="@+id/details_year"
                 android:layout_width="wrap_content"
@@ -56,6 +98,26 @@
                 android:textColor="@color/samuel"
                 android:textSize="20sp"
                 android:fontFamily="sans-serif-medium"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mark as Favourite"
+                android:layout_marginTop="10dp"
+                android:fontFamily="sans-serif-light"
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                android:textColor="@color/samuel"
+                />
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/ic_star_border_white_24dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:id="@+id/favourite"
+                android:onClick="Favourited"
+                />
         </LinearLayout>
     </LinearLayout>
     <TextView
@@ -102,6 +164,34 @@
         android:id="@+id/details_synopsis"
         android:fontFamily="sans-serif-medium"
         android:textColor="@color/samuel"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="10dp"/>'
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/review_container"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reviews:"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:textColor="@color/colorPrimary"
+            android:fontFamily="sans-serif-medium"
+
+            android:textSize="20sp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/reviews"
+        tools:text="my reviews"
+        android:layout_marginTop="10dp"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/colorPrimary"
+        android:textSize="20sp"/>
+    </LinearLayout>
 </LinearLayout>
+</LinearLayout>
+</RelativeLayout>
 </ScrollView>

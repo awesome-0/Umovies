@@ -172,6 +172,11 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
 
     }
+    public void FavouritedMovies(ArrayList<Movies> movies){
+
+
+
+    }
 
     @Override
     public void onLoaderReset(Loader<ArrayList<Movies>> loader) {loader.reset();
