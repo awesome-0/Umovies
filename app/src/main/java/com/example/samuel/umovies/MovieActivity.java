@@ -233,7 +233,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
         }
         else{
-            Log.d("no of movies",query.getCount()+"");
+        
             query.moveToFirst();
           ArrayList<Movies>dmovies = new ArrayList<>();
 
