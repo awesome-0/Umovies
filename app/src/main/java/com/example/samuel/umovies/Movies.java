@@ -14,6 +14,7 @@ public class Movies {
     private String video;
     private String reviewer;
     private String review;
+    private boolean isFavourite = false;
 
     public Movies() {
     }
@@ -31,6 +32,13 @@ public class Movies {
         this.review = review;
         this.reviewer = reviewer;
     }
+
+    public Movies(String title, String image, String release_date ){
+        this.image = image;
+        this.title = title;
+        this.release_date = release_date;
+    }
+
     public Movies(String title, String image, String user_rating, String synopsis, String release_date, String id) {
         this.title = title;
         this.image = image;
@@ -38,6 +46,14 @@ public class Movies {
         this.synopsis = synopsis;
         this.release_date = release_date;
         this.id = id;
+    }
+
+    public void setFavourite(boolean favourite) {
+        isFavourite = favourite;
+    }
+
+    public boolean isFavourite() {
+        return isFavourite;
     }
 
     public String getTitle() {

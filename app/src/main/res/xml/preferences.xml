@@ -5,6 +5,6 @@
     android:key="@string/list_preference_key"
     android:entries="@array/sort_order_titles"
     android:entryValues="@array/sort_order_values"
-    android:defaultValue="popular"
+    android:defaultValue="@string/top_rated"
     />
 </PreferenceScreen>

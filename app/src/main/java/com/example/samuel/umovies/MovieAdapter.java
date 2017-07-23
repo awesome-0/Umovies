@@ -1,13 +1,17 @@
 package com.example.samuel.umovies;
 
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.example.samuel.umovies.Database.MovieContract;
 import com.example.samuel.umovies.Movies;
 import com.squareup.picasso.Picasso;
 
@@ -76,7 +80,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.movieHolder>
                   Intent detailsIntent = new Intent(itemView.getContext(),DetailsActivity.class);
                   Movies movie = (Movies) itemView.getTag();
                   detailsIntent.putExtra("id",movie.getId());
-                  detailsIntent.putExtra("position",getAdapterPosition());
+                  int position = getAdapterPosition();
+                 detailsIntent.setData(ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI,position));
                   itemView.getContext().startActivity(detailsIntent);
 
 

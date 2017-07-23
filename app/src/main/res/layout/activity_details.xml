@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    >
 <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -77,7 +78,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="10dp">
+            android:padding="10dp"
+            >
 
             <TextView
                 android:layout_width="wrap_content"
@@ -116,7 +118,6 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
                 android:id="@+id/favourite"
-                android:onClick="Favourited"
                 />
         </LinearLayout>
     </LinearLayout>
@@ -166,7 +167,7 @@
         android:textColor="@color/samuel"
         android:layout_marginTop="10dp"/>'
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/review_container"
         android:orientation="vertical"

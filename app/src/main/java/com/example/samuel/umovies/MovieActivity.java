@@ -2,6 +2,7 @@ package com.example.samuel.umovies;
 
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.content.SharedPreferences;
@@ -23,6 +24,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.samuel.umovies.Database.MovieContract;
 import com.example.samuel.umovies.data.MoviesLoader;
 
 import java.util.ArrayList;
@@ -34,7 +36,7 @@ import java.util.ArrayList;
 *
  */
 
-public class MovieActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<Movies>>,SharedPreferences.OnSharedPreferenceChangeListener, SwipeRefreshLayout.OnRefreshListener{
+public class MovieActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<Movies>>,SharedPreferences.OnSharedPreferenceChangeListener, SwipeRefreshLayout.OnRefreshListener {
     private ProgressBar progressBar;
     private RecyclerView recyclerView;
     private MovieAdapter adapter;
@@ -42,6 +44,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     private TextView error_text;
     private ArrayList<Movies> movies = null;
     private SwipeRefreshLayout refreshLayout;
+
 
     GridLayoutManager manager;
 
@@ -53,16 +56,19 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         recyclerView = (RecyclerView) findViewById(R.id.Recycler_view);
         error_text = (TextView) findViewById(R.id.error_text);
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_container);
-
-//        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-//            @Override
-//            public void onRefresh() {
-//                getLoaderManager().restartLoader(MOVIE_LOADER_ID,null,getApplicationContext());
-//            }
-//        });
         refreshLayout.setOnRefreshListener(this);
-        getSupportLoaderManager().initLoader(MOVIE_LOADER_ID,null,this);
+
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String value = defaultSharedPreferences.getString(getString(R.string.list_preference_key),"");
+        if(value.equals(getString(R.string.favourited))){
+            getFavourites();
+
+
+        }
+        else{
+            getSupportLoaderManager().initLoader(MOVIE_LOADER_ID,null,this);
+        }
     }
 
     @Override
@@ -185,19 +191,70 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if(key.equals(getString(R.string.list_preference_key))){
-            getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID,null,this);
-        }
+
+
+            String value = sharedPreferences.getString(getString(R.string.list_preference_key),"");
+            Log.d("valueTag",value);
+            if(value.equals(getString(R.string.favourited))){
+                getFavourites();
+            }
+            else{
+                getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID,null,this);
+            }
+
     }
 
     @Override
     public void onRefresh() {
         getSupportLoaderManager().destroyLoader(MOVIE_LOADER_ID);
+        progressBar.setVisibility(View.VISIBLE);
         getSupportLoaderManager().initLoader(MOVIE_LOADER_ID,null,this);
         refreshLayout.setRefreshing(false);
     }
-    public void restartLoader(){
+
+    public void getFavourites(){
+        progressBar.setVisibility(View.GONE);
+
+        String[] projection = {MovieContract.MovieEntry.COLUMN_TITLE, MovieContract.MovieEntry.COLUMN_IMAGE,
+                MovieContract.MovieEntry.COLUMN_VIDEO,
+                MovieContract.MovieEntry.COLUMN_REVIEW,
+                MovieContract.MovieEntry.COLUMN_REVIEWER,
+                MovieContract.MovieEntry.COLUMN_RATING,
+                MovieContract.MovieEntry.COLUMN_RELEASEDATE};
+        Cursor query = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, projection, null, null, MovieContract.MovieEntry.ID);
+        if(query.getCount() == 0 ){
+
+            error_text.setText("No movies Favourited");
+            MovieAdapter ad = new MovieAdapter(this,new ArrayList<Movies>());
+            manager = new GridLayoutManager(this,2);
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setLayoutManager(manager);
+            recyclerView.setAdapter(ad);
+
+        }
+        else{
+            Log.d("no of movies",query.getCount()+"");
+            query.moveToFirst();
+          ArrayList<Movies>dmovies = new ArrayList<>();
+
+           do{
+
+                    String title = query.getString(query.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE));
+                    String year = query.getString(query.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASEDATE));
+                    String image = query.getString(query.getColumnIndex(MovieContract.MovieEntry.COLUMN_IMAGE));
+                    Log.d("image",image);
+               dmovies.add(new Movies(title,image,year));
+            }while (query.moveToNext());
+
+            MovieAdapter dAdapter = new MovieAdapter(this,dmovies);
+            manager = new GridLayoutManager(this,2);
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setLayoutManager(manager);
+            recyclerView.setAdapter(dAdapter);
+        }
+
 
 
     }
+
 }
