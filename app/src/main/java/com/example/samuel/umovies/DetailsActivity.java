@@ -3,6 +3,7 @@ package com.example.samuel.umovies;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -53,11 +54,10 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
     private TextView reviews;
     private LinearLayout details_layout;
     private LinearLayout review_layout;
-    private static  int movieposition = 0;
     private ImageView favourite_star;
     private static Uri movieUri;
-    private ArrayList<FavouritedMovies> favMovies = new ArrayList<>();
-    private static  ArrayList<String> favMoviesId = new ArrayList<>();
+    private static Uri favMovieUri ;
+    private static Uri starredUri;
    private static  ArrayList<String> favouritedMoviez  ;
 
 
@@ -65,19 +65,46 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
-        Bundle info = getIntent().getExtras();
+
         progressBar = (ProgressBar) findViewById(R.id.details_progress_bar);
         error_text = (TextView) findViewById(R.id.details_error_text);
         Bundle bundle = getIntent().getExtras();
-        Intent movieIntent = getIntent();
-        movieUri = movieIntent.getData();
-        movie_id = bundle.getString("id");
+        Intent callingIntent = getIntent();
+        title_text = (TextView) findViewById(R.id.details_title);
+        synopsis_text = (TextView) findViewById(R.id.details_synopsis);
+        imageView_details = (ImageView) findViewById(R.id.details_image);
+        ratingBar_details = (RatingBar) findViewById(R.id.details_rating_bar);
+        release_details = (TextView) findViewById(R.id.details_year);
+        ratings_text = (TextView) findViewById(R.id.rating_text);
+        favourite_star = (ImageView) findViewById(R.id.favourite);
         details_layout = (LinearLayout) findViewById(R.id.details_layout);
         review_layout = (LinearLayout) findViewById(R.id.review_container);
+        if(callingIntent.hasExtra("fav_movie")){
+            String fav_movie = callingIntent.getStringExtra("fav_movie");
+            favMovieUri = Uri.parse(fav_movie);
+            details_layout = (LinearLayout) findViewById(R.id.details_layout);
+            review_layout = (LinearLayout) findViewById(R.id.review_container);
+            String[] projection = {MovieContract.MovieEntry._ID,MovieContract.MovieEntry.COLUMN_TITLE, MovieContract.MovieEntry.COLUMN_IMAGE,
+                    MovieContract.MovieEntry.COLUMN_VIDEO,
+                    MovieContract.MovieEntry.COLUMN_REVIEW,
+                    MovieContract.MovieEntry.COLUMN_REVIEWER,
+                    MovieContract.MovieEntry.COLUMN_MOVIE_ID,
+                    MovieContract.MovieEntry.COLUMN_RATING,
+                    MovieContract.MovieEntry.COLUMN_SYNOPSIS,
+                    MovieContract.MovieEntry.COLUMN_RELEASEDATE};
+            Cursor cursor = getContentResolver().query(favMovieUri,projection,null,null,null);
+            extractFavouriteMovie(cursor);
 
 
-        getSupportLoaderManager().initLoader(MOVIE_LOADER_ID,null,this);
+        }
+        else {
+            movieUri = callingIntent.getData();
+            movie_id = bundle.getString("id");
 
+
+
+            getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
+        }
 
     }
 
@@ -140,13 +167,7 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
         String review = movie.getReview();
         String reviewer = movie.getReviewer();
         final String video_link = movie.getVideo();
-        title_text = (TextView) findViewById(R.id.details_title);
-        synopsis_text = (TextView) findViewById(R.id.details_synopsis);
-        imageView_details = (ImageView) findViewById(R.id.details_image);
-        ratingBar_details = (RatingBar) findViewById(R.id.details_rating_bar);
-        release_details = (TextView) findViewById(R.id.details_year);
-        ratings_text = (TextView) findViewById(R.id.rating_text);
-        favourite_star = (ImageView) findViewById(R.id.favourite);
+
         if(favouritedMoviez == null){
             favourite_star.setColorFilter(ContextCompat.getColor(DetailsActivity.this,R.color.star_unchecked));
         }
@@ -213,11 +234,15 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
                     values.put(MovieContract.MovieEntry.COLUMN_IMAGE,movie.getImage());
                     values.put(MovieContract.MovieEntry.COLUMN_VIDEO,movie.getVideo());
                     values.put(MovieContract.MovieEntry.COLUMN_REVIEW,movie.getReview());
+                    values.put(MovieContract.MovieEntry.COLUMN_SYNOPSIS,movie.getSynopsis());
+                    values.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID,movie.getId());
                     values.put(MovieContract.MovieEntry.COLUMN_REVIEWER,movie.getReview());
                     values.put(MovieContract.MovieEntry.COLUMN_RATING,movie.getUser_rating());
                     values.put(MovieContract.MovieEntry.COLUMN_RELEASEDATE,movie.getRelease_date());
-                    Uri insert = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
-                    Log.e("Uri",insert.toString());
+                    starredUri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
+                    Log.e("Uri",starredUri.toString());
+                    Cursor query = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
+                    Log.d("movies num in database","" + query.getCount());
 
 
                     return;
@@ -238,7 +263,9 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
                         String jsOn = gson.toJson(favouritedMoviez);
                         edit.putString("favourited", jsOn);
                         edit.commit();
-                        int delete = getContentResolver().delete(movieUri, null, null);
+                        int delete = getContentResolver().delete(starredUri, null, null);
+                        Cursor query = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
+                        Log.d("movies num in database","" + query.getCount());
 
                         favourite_star.setColorFilter(ContextCompat.getColor(DetailsActivity.this, R.color.star_unchecked));
                         Toast.makeText(DetailsActivity.this, "Removed from Favourites", Toast.LENGTH_SHORT).show();
@@ -258,16 +285,99 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
                         values.put(MovieContract.MovieEntry.COLUMN_IMAGE,movie.getImage());
                         values.put(MovieContract.MovieEntry.COLUMN_VIDEO,movie.getVideo());
                         values.put(MovieContract.MovieEntry.COLUMN_REVIEW,movie.getReview());
+                        values.put(MovieContract.MovieEntry.COLUMN_SYNOPSIS,movie.getSynopsis());
                         values.put(MovieContract.MovieEntry.COLUMN_REVIEWER,movie.getReview());
+                        values.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID,movie.getId());
                         values.put(MovieContract.MovieEntry.COLUMN_RATING,movie.getUser_rating());
                         values.put(MovieContract.MovieEntry.COLUMN_RELEASEDATE,movie.getRelease_date());
-                        Uri insert = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
-                        Log.e("Uri",insert.toString());
+                        starredUri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
+                        Log.e("Uri",starredUri.toString());
+                        Cursor query = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
+                        Log.d("movies num in database","" + query.getCount());
 
                     }
                 }
+
+            }
+
+        });
+
+    }
+
+    public void extractFavouriteMovie(final Cursor cursor){
+        progressBar.setVisibility(View.GONE);
+        cursor.moveToFirst();
+
+
+            String title = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE));
+            String synopsis = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_SYNOPSIS));
+            String rating = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RATING));
+            String release = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASEDATE));
+            String image = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_IMAGE));
+            String review = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_REVIEW));
+            String reviewer = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_REVIEWER));
+            final String video_link = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_VIDEO));
+            favourite_star.setColorFilter(ContextCompat.getColor(DetailsActivity.this, R.color.samuel));
+            reviews = (TextView) findViewById(R.id.reviews);
+            if(!review.isEmpty() && review != null){
+                String concatReview = review + "  - " + reviewer;
+                reviews.setText(concatReview);
+
+            }
+            else{
+                reviews.setText("No Reviews yet");
+            }
+            title_text.setText(title);
+            String concatRating = rating + " / " + 10;
+            ratings_text.setText(concatRating);
+
+            String format = "";
+            SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy");
+            try {
+                format = sdf.format(new SimpleDateFormat("yyyy-MM-dd").parse(release));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            release_details.setText(format);
+            synopsis_text.setText(synopsis);
+            ratingBar_details.setRating(Float.parseFloat(rating) / 2);
+            String imageUrl = ("https://image.tmdb.org/t/p/w185" + image);
+            Picasso.with(this).load(imageUrl).into(imageView_details);
+            imageView_details.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent videoIntent = new Intent(Intent.ACTION_VIEW);
+                    String youtube = "https://www.youtube.com/watch?v=" + video_link;
+                    videoIntent.setData(Uri.parse(youtube));
+                    startActivity(videoIntent);
+                }
+            });
+        details_layout.setVisibility(View.VISIBLE);
+
+        favourite_star.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(DetailsActivity.this);
+                final SharedPreferences.Editor edit = preferences.edit();
+                final Gson gson = new Gson();
+                String json = preferences.getString("favourited", "");
+                Type type = new TypeToken<ArrayList<String>>() {
+                }.getType();
+                favouritedMoviez = gson.fromJson(json, type);
+                String Id = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_ID));
+                int indexOfMOvie = favouritedMoviez.indexOf(Id);
+                favouritedMoviez.remove(favouritedMoviez.get(indexOfMOvie));
+                String jsOn = gson.toJson(favouritedMoviez);
+                edit.putString("favourited", jsOn);
+                edit.commit();
+                int delete = getContentResolver().delete(favMovieUri, null, null);
+                Toast.makeText(DetailsActivity.this, "Removed from Favourites", Toast.LENGTH_SHORT).show();
+                finish();
+
             }
         });
+
+
     }
 
     @Override
@@ -306,27 +416,6 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
 
     }
 
-    public void Favourited(View view) {
 
-    }
-    public class FavouritedMovies{
-        Movies favouritedmovie;
-        String ID = "";
-
-        public Movies getFavouritedmovie() {
-            return favouritedmovie;
-        }
-
-        public String getID() {
-            return ID;
-        }
-
-        public FavouritedMovies(Movies favouritedmovie, String ID) {
-            this.favouritedmovie = favouritedmovie;
-            this.ID = ID;
-
-
-        }
-    }
 }
 

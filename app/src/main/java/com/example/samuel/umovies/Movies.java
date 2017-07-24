@@ -16,8 +16,7 @@ public class Movies {
     private String review;
     private boolean isFavourite = false;
 
-    public Movies() {
-    }
+
 
 
 
@@ -48,13 +47,7 @@ public class Movies {
         this.id = id;
     }
 
-    public void setFavourite(boolean favourite) {
-        isFavourite = favourite;
-    }
 
-    public boolean isFavourite() {
-        return isFavourite;
-    }
 
     public String getTitle() {
         return title;

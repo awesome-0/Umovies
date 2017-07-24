@@ -24,9 +24,11 @@ public class MovieContract {
         public  static final Uri CONTENT_URI  = Uri.withAppendedPath(BASE_URI,PATH);
         public static final String TABLE_NAME = "movies";
         public static final String ID = BaseColumns._ID;
+        public static final String COLUMN_MOVIE_ID = "movie_id";
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_IMAGE = "image";
         public static final String COLUMN_VIDEO = "video";
+        public static final String COLUMN_SYNOPSIS = "synopsis";
         public static final String COLUMN_REVIEW = "review";
         public static final String COLUMN_REVIEWER = "reviewer";
         public static final String COLUMN_RATING = "rating";

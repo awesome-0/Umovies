@@ -3,6 +3,7 @@ package com.example.samuel.umovies;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.content.SharedPreferences;
@@ -26,7 +27,6 @@ import android.widget.TextView;
 
 import com.example.samuel.umovies.Database.MovieContract;
 import com.example.samuel.umovies.data.MoviesLoader;
-
 import java.util.ArrayList;
 
 /*
@@ -44,7 +44,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     private TextView error_text;
     private ArrayList<Movies> movies = null;
     private SwipeRefreshLayout refreshLayout;
-
+    private AsyncTask dbAsyncTask;
 
     GridLayoutManager manager;
 
@@ -57,17 +57,15 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         error_text = (TextView) findViewById(R.id.error_text);
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_container);
         refreshLayout.setOnRefreshListener(this);
-
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String value = defaultSharedPreferences.getString(getString(R.string.list_preference_key),"");
         if(value.equals(getString(R.string.favourited))){
-            getFavourites();
+            new FavouriteAsyncTask().execute();
+                  }
+        else {
 
-
-        }
-        else{
-            getSupportLoaderManager().initLoader(MOVIE_LOADER_ID,null,this);
+            getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
         }
     }
 
@@ -82,6 +80,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         getMenuInflater().inflate(R.menu.menu,menu);
         return super.onCreateOptionsMenu(menu);
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -103,6 +102,39 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+       SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String value = defaultSharedPreferences.getString(getString(R.string.list_preference_key),"");
+        if(value.equals(getString(R.string.favourited))){
+            getSupportLoaderManager().destroyLoader(MOVIE_LOADER_ID);
+            new FavouriteAsyncTask().execute();
+        }
+        else{
+            progressBar.setVisibility(View.VISIBLE);
+            getSupportLoaderManager().initLoader(MOVIE_LOADER_ID,null,this);
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String value = defaultSharedPreferences.getString(getString(R.string.list_preference_key),"");
+        if(value.equals(getString(R.string.favourited))){
+            getSupportLoaderManager().destroyLoader(MOVIE_LOADER_ID);
+            new FavouriteAsyncTask().execute();
+        }
+        else{
+            progressBar.setVisibility(View.VISIBLE);
+            getSupportLoaderManager().initLoader(MOVIE_LOADER_ID,null,this);
+        }
+
     }
 
     private void noInternetConnection() {
@@ -178,27 +210,25 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
 
     }
-    public void FavouritedMovies(ArrayList<Movies> movies){
-
-
-
-    }
 
     @Override
-    public void onLoaderReset(Loader<ArrayList<Movies>> loader) {loader.reset();
+    public void onLoaderReset(Loader<ArrayList<Movies>> loader) {
+        loader.reset();
 
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
+            String Tag = "SHared Pref changed";
 
             String value = sharedPreferences.getString(getString(R.string.list_preference_key),"");
-            Log.d("valueTag",value);
+            Log.d(Tag,value);
             if(value.equals(getString(R.string.favourited))){
-                getFavourites();
+                getSupportLoaderManager().destroyLoader(MOVIE_LOADER_ID);
+                new FavouriteAsyncTask().execute();
             }
             else{
+                progressBar.setVisibility(View.VISIBLE);
                 getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID,null,this);
             }
 
@@ -212,49 +242,59 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         refreshLayout.setRefreshing(false);
     }
 
-    public void getFavourites(){
-        progressBar.setVisibility(View.GONE);
-
-        String[] projection = {MovieContract.MovieEntry.COLUMN_TITLE, MovieContract.MovieEntry.COLUMN_IMAGE,
+    public Cursor getFavourites(){
+        String[] projection = {MovieContract.MovieEntry._ID,MovieContract.MovieEntry.COLUMN_TITLE, MovieContract.MovieEntry.COLUMN_IMAGE,
                 MovieContract.MovieEntry.COLUMN_VIDEO,
+                MovieContract.MovieEntry.COLUMN_MOVIE_ID,
                 MovieContract.MovieEntry.COLUMN_REVIEW,
                 MovieContract.MovieEntry.COLUMN_REVIEWER,
                 MovieContract.MovieEntry.COLUMN_RATING,
+                MovieContract.MovieEntry.COLUMN_SYNOPSIS,
                 MovieContract.MovieEntry.COLUMN_RELEASEDATE};
-        Cursor query = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, projection, null, null, MovieContract.MovieEntry.ID);
-        if(query.getCount() == 0 ){
-
-            error_text.setText("No movies Favourited");
-            MovieAdapter ad = new MovieAdapter(this,new ArrayList<Movies>());
-            manager = new GridLayoutManager(this,2);
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setLayoutManager(manager);
-            recyclerView.setAdapter(ad);
-
-        }
-        else{
-        
-            query.moveToFirst();
-          ArrayList<Movies>dmovies = new ArrayList<>();
-
-           do{
-
-                    String title = query.getString(query.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE));
-                    String year = query.getString(query.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASEDATE));
-                    String image = query.getString(query.getColumnIndex(MovieContract.MovieEntry.COLUMN_IMAGE));
-                    Log.d("image",image);
-               dmovies.add(new Movies(title,image,year));
-            }while (query.moveToNext());
-
-            MovieAdapter dAdapter = new MovieAdapter(this,dmovies);
-            manager = new GridLayoutManager(this,2);
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setLayoutManager(manager);
-            recyclerView.setAdapter(dAdapter);
-        }
-
-
+        return getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, projection, null, null, MovieContract.MovieEntry.ID);
 
     }
 
-}
+    public class FavouriteAsyncTask extends AsyncTask<Cursor,Void,Cursor>{
+
+
+        @Override
+        protected Cursor doInBackground(Cursor... params) {
+            return getFavourites();
+        }
+
+        @Override
+        protected void onPostExecute(Cursor cursor) {
+            super.onPostExecute(cursor);
+            if(cursor.getCount() == 0 ){
+                progressBar.setVisibility(View.GONE);
+
+                error_text.setText("No movies Favourited");
+                error_text.setVisibility(View.VISIBLE);
+                MovieAdapter ad = new MovieAdapter(MovieActivity.this,new ArrayList<Movies>());
+                manager = new GridLayoutManager(MovieActivity.this,2);
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setLayoutManager(manager);
+                recyclerView.setAdapter(ad);
+
+
+            }
+            else{
+
+                Log.d("cursor",""+cursor.getCount());
+                progressBar.setVisibility(View.GONE);
+
+                FavouritesAdapter dAdapter = new FavouritesAdapter(MovieActivity.this,cursor);
+                manager = new GridLayoutManager(MovieActivity.this,2);
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setLayoutManager(manager);
+                recyclerView.setAdapter(dAdapter);
+            }
+
+        }
+
+        }
+    }
+
+
+
