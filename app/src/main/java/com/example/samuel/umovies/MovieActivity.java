@@ -289,7 +289,6 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
             }
 
         }
-
         }
     }
 

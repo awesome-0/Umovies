@@ -126,8 +126,7 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
                 .appendPath("movie")
                 .appendPath(movie_id)
                 //here you add your api key, had to remove my own
-                .appendQueryParameter("api_key", "d48eb72bb65495581cfe2b9ab8ec9d88")
-                .appendQueryParameter("api_key", "8")
+                .appendQueryParameter("api_key", "")
                 .appendQueryParameter("language", "en-US")
                 .appendQueryParameter("append_to_response","videos,reviews")
                 .appendQueryParameter("page", "1").build();
