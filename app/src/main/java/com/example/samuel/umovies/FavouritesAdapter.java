@@ -46,12 +46,12 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.de
 
             String title = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE));
             String year = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASEDATE));
-            String image = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_IMAGE));
+           byte[] image = cursor.getBlob(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_IMAGE));
             holder.display_title_f.setText(title);
             String substring = year.substring(0, 4);
             holder.display_year_f.setText(substring);
             String imageUrl = ("https://image.tmdb.org/t/p/w154" + image);
-            Picasso.with(context).load(imageUrl).into(holder.display_image_f);
+            holder.display_image_f.setImageBitmap(BitmapUtil.getBitmap(image));
             int id = cursor.getInt(cursor.getColumnIndex(MovieContract.MovieEntry._ID));
             holder.itemView.setTag(id);
 

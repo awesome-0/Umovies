@@ -280,8 +280,6 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
             }
             else{
-
-                Log.d("cursor",""+cursor.getCount());
                 progressBar.setVisibility(View.GONE);
 
                 FavouritesAdapter dAdapter = new FavouritesAdapter(MovieActivity.this,cursor);

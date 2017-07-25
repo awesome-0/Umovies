@@ -4,6 +4,9 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -32,6 +35,7 @@ import com.example.samuel.umovies.data.MoviesLoader;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.w3c.dom.Text;
 
@@ -52,6 +56,8 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
     private static String movie_id = "";
     private static final int MOVIE_LOADER_ID =2;
     private TextView reviews;
+    private Target mTarget;
+    private  Bitmap favBitmap;
     private LinearLayout details_layout;
     private LinearLayout review_layout;
     private ImageView favourite_star;
@@ -121,7 +127,6 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
                 .appendQueryParameter("language", "en-US")
                 .appendQueryParameter("append_to_response","videos,reviews")
                 .appendQueryParameter("page", "1").build();
-        Log.d("movie Url",builder.toString());
 
         if (isConnected()) {
             error_text.setText("");
@@ -207,7 +212,25 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
         synopsis_text.setText(synopsis);
         ratingBar_details.setRating(Float.parseFloat(rating) / 2);
         String imageUrl = ("https://image.tmdb.org/t/p/w185" + image);
-        Picasso.with(this).load(imageUrl).into(imageView_details);
+        mTarget = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                favBitmap = bitmap;
+                imageView_details.setImageBitmap(bitmap);
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                showError();
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        };
+        Picasso.with(this).load(imageUrl).into(mTarget);
         imageView_details.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -230,8 +253,9 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
                     edit.putString("favourited",json);
                     edit.commit();
                     ContentValues values = new ContentValues();
+                    byte[]fav_image = BitmapUtil.getbyteArray(favBitmap);
+                    values.put(MovieContract.MovieEntry.COLUMN_IMAGE,fav_image);
                     values.put(MovieContract.MovieEntry.COLUMN_TITLE,movie.getTitle());
-                    values.put(MovieContract.MovieEntry.COLUMN_IMAGE,movie.getImage());
                     values.put(MovieContract.MovieEntry.COLUMN_VIDEO,movie.getVideo());
                     values.put(MovieContract.MovieEntry.COLUMN_REVIEW,movie.getReview());
                     values.put(MovieContract.MovieEntry.COLUMN_SYNOPSIS,movie.getSynopsis());
@@ -249,7 +273,7 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
 
                 }
                 else{
-              //  for(String x: favouritedMoviez) {
+
                     int indexOfMOvie = favouritedMoviez.indexOf(Id);
                     if(indexOfMOvie != -1){
 
@@ -257,8 +281,6 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
                         Type type = new TypeToken<ArrayList<String>>() {
                         }.getType();
                         favouritedMoviez = gson.fromJson(json, type);
-
-
                         favouritedMoviez.remove(favouritedMoviez.get(indexOfMOvie));
                         String jsOn = gson.toJson(favouritedMoviez);
                         edit.putString("favourited", jsOn);
@@ -282,7 +304,8 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
                         edit.commit();
                         ContentValues values = new ContentValues();
                         values.put(MovieContract.MovieEntry.COLUMN_TITLE,movie.getTitle());
-                        values.put(MovieContract.MovieEntry.COLUMN_IMAGE,movie.getImage());
+                        byte[]fav_image = BitmapUtil.getbyteArray(favBitmap);
+                        values.put(MovieContract.MovieEntry.COLUMN_IMAGE,fav_image);
                         values.put(MovieContract.MovieEntry.COLUMN_VIDEO,movie.getVideo());
                         values.put(MovieContract.MovieEntry.COLUMN_REVIEW,movie.getReview());
                         values.put(MovieContract.MovieEntry.COLUMN_SYNOPSIS,movie.getSynopsis());
@@ -291,7 +314,6 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
                         values.put(MovieContract.MovieEntry.COLUMN_RATING,movie.getUser_rating());
                         values.put(MovieContract.MovieEntry.COLUMN_RELEASEDATE,movie.getRelease_date());
                         starredUri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
-                        Log.e("Uri",starredUri.toString());
                         Cursor query = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
                         Log.d("movies num in database","" + query.getCount());
 
@@ -313,7 +335,7 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
             String synopsis = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_SYNOPSIS));
             String rating = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RATING));
             String release = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASEDATE));
-            String image = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_IMAGE));
+            byte [] image = cursor.getBlob(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_IMAGE));
             String review = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_REVIEW));
             String reviewer = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_REVIEWER));
             final String video_link = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_VIDEO));
@@ -341,8 +363,9 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
             release_details.setText(format);
             synopsis_text.setText(synopsis);
             ratingBar_details.setRating(Float.parseFloat(rating) / 2);
-            String imageUrl = ("https://image.tmdb.org/t/p/w185" + image);
-            Picasso.with(this).load(imageUrl).into(imageView_details);
+
+        imageView_details.setImageBitmap(BitmapUtil.getBitmap(image));
+
             imageView_details.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

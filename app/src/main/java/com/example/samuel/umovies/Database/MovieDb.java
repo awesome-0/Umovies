@@ -22,7 +22,7 @@ public class MovieDb extends SQLiteOpenHelper {
         String command = "CREATE TABLE "+ MovieEntry.TABLE_NAME + "("+
                 MovieEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"+
                 MovieEntry.COLUMN_TITLE + " TEXT NOT NULL," +
-                MovieEntry.COLUMN_IMAGE + " TEXT NOT NULL," +
+                MovieEntry.COLUMN_IMAGE + " BLOB NOT NULL," +
                 MovieEntry.COLUMN_VIDEO + " TEXT NOT NULL," +
                 MovieEntry.COLUMN_RELEASEDATE + " TEXT NOT NULL," +
                 MovieEntry.COLUMN_SYNOPSIS + " TEXT NOT NULL," +
