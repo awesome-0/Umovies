@@ -13,6 +13,8 @@
 
     <string name="popular">popular</string>
 
+    <string name="favourites">Favourites</string>
+
     <string name="list_preference_key" translatable="false">sort_order</string>
 
     <string name="settings">Settings</string>

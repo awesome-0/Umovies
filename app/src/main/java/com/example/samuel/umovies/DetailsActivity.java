@@ -105,13 +105,12 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
             extractFavouriteMovie(cursor);
 
 
+
         }
         else {
+
             movieUri = callingIntent.getData();
             movie_id = bundle.getString("id");
-
-
-
             getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
         }
 

@@ -61,10 +61,11 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
         String value = defaultSharedPreferences.getString(getString(R.string.list_preference_key),"");
         if(value.equals(getString(R.string.favourited))){
+            setTitle(getString(R.string.favourites));
             new FavouriteAsyncTask().execute();
                   }
         else {
-
+            setTitle(getString(R.string.movies));
             getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
         }
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
@@ -156,9 +157,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
     @Override
     public Loader<ArrayList<Movies>> onCreateLoader(int id, Bundle args) {
-
         String criteria = defaultSharedPreferences.getString(getString(R.string.list_preference_key),getString(R.string.popular));
-
         Uri.Builder builder = new Uri.Builder();
         builder.scheme("https")
                 .authority("api.themoviedb.org")
