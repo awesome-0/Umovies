@@ -116,6 +116,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
         }
         else{
             progressBar.setVisibility(View.VISIBLE);
+
             getSupportLoaderManager().initLoader(MOVIE_LOADER_ID,null,this);
         }
     }
@@ -170,6 +171,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
                 .appendQueryParameter("page","1").build();
         if(isConnected()){
             error_text.setText("");
+            recyclerView.setVisibility(View.VISIBLE);
 
             return new MoviesLoader(this,builder.toString());
         }
@@ -224,11 +226,11 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
             String value = sharedPreferences.getString(getString(R.string.list_preference_key),"");
             Log.d(Tag,value);
             if(value.equals(getString(R.string.favourited))){
-                getSupportLoaderManager().destroyLoader(MOVIE_LOADER_ID);
                 new FavouriteAsyncTask().execute();
             }
             else{
                 progressBar.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
                 getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID,null,this);
             }
 

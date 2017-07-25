@@ -162,8 +162,6 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(DetailsActivity.this);
         final SharedPreferences.Editor edit = preferences.edit();
         final Gson gson = new Gson();
-
-
         String title = movie.getTitle();
         String synopsis = movie.getSynopsis();
         String rating = movie.getUser_rating();
@@ -184,33 +182,8 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
                 if (x.equals(movie.getId())) {
                     favourite_star.setColorFilter(ContextCompat.getColor(DetailsActivity.this, R.color.samuel));
                 }
-
             }
         }
-
-        reviews = (TextView) findViewById(R.id.reviews);
-        if(!review.isEmpty() && review != null){
-            String concatReview = review + "  - " + reviewer;
-            reviews.setText(concatReview);
-
-        }
-        else{
-            reviews.setText("No Reviews yet");
-        }
-        title_text.setText(title);
-        String concatRating = rating + " / " + 10;
-        ratings_text.setText(concatRating);
-
-        String format = "";
-        SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy");
-        try {
-            format = sdf.format(new SimpleDateFormat("yyyy-MM-dd").parse(release));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        release_details.setText(format);
-        synopsis_text.setText(synopsis);
-        ratingBar_details.setRating(Float.parseFloat(rating) / 2);
         String imageUrl = ("https://image.tmdb.org/t/p/w185" + image);
         mTarget = new Target() {
             @Override
@@ -240,6 +213,31 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
                 startActivity(videoIntent);
             }
         });
+        reviews = (TextView) findViewById(R.id.reviews);
+        if(!review.isEmpty() && review != null){
+            String concatReview = review + "  - " + reviewer;
+            reviews.setText(concatReview);
+
+        }
+        else{
+            reviews.setText("No Reviews yet");
+        }
+        title_text.setText(title);
+        String concatRating = rating + " / " + 10;
+        ratings_text.setText(concatRating);
+
+        String format = "";
+        SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy");
+        try {
+            format = sdf.format(new SimpleDateFormat("yyyy-MM-dd").parse(release));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        release_details.setText(format);
+        synopsis_text.setText(synopsis);
+        ratingBar_details.setRating(Float.parseFloat(rating) / 2);
+
+
         favourite_star.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
