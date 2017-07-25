@@ -55,14 +55,8 @@ public class FetchDetailsDataFromInternet {
             String line = "";
             while(( line = reader.readLine())!= null){
                 buffer.append(line);
-
-
             }
-            Log.d("buffer","" +buffer.length());
             return buffer.toString();
-
-
-
         } catch (IOException e) {
             e.printStackTrace();
 

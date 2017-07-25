@@ -50,7 +50,6 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.de
             holder.display_title_f.setText(title);
             String substring = year.substring(0, 4);
             holder.display_year_f.setText(substring);
-            String imageUrl = ("https://image.tmdb.org/t/p/w154" + image);
             holder.display_image_f.setImageBitmap(BitmapUtil.getBitmap(image));
             int id = cursor.getInt(cursor.getColumnIndex(MovieContract.MovieEntry._ID));
             holder.itemView.setTag(id);

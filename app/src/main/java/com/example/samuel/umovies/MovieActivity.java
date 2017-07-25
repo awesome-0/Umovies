@@ -44,7 +44,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     private TextView error_text;
     private ArrayList<Movies> movies = null;
     private SwipeRefreshLayout refreshLayout;
-    private AsyncTask dbAsyncTask;
+    private SharedPreferences defaultSharedPreferences;
 
     GridLayoutManager manager;
 
@@ -52,13 +52,13 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie);
+         defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         recyclerView = (RecyclerView) findViewById(R.id.Recycler_view);
         error_text = (TextView) findViewById(R.id.error_text);
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_container);
         refreshLayout.setOnRefreshListener(this);
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
-        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         String value = defaultSharedPreferences.getString(getString(R.string.list_preference_key),"");
         if(value.equals(getString(R.string.favourited))){
             new FavouriteAsyncTask().execute();
@@ -67,6 +67,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
             getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
         }
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -107,8 +108,8 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     @Override
     protected void onResume() {
         super.onResume();
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
-       SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String value = defaultSharedPreferences.getString(getString(R.string.list_preference_key),"");
         if(value.equals(getString(R.string.favourited))){
             getSupportLoaderManager().destroyLoader(MOVIE_LOADER_ID);
@@ -124,8 +125,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
     @Override
     protected void onStart() {
         super.onStart();
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
-        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+         defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String value = defaultSharedPreferences.getString(getString(R.string.list_preference_key),"");
         if(value.equals(getString(R.string.favourited))){
             getSupportLoaderManager().destroyLoader(MOVIE_LOADER_ID);
@@ -156,9 +156,9 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
     @Override
     public Loader<ArrayList<Movies>> onCreateLoader(int id, Bundle args) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String criteria = preferences.getString(getString(R.string.list_preference_key),"");
-        Log.e("criteria",criteria);
+
+        String criteria = defaultSharedPreferences.getString(getString(R.string.list_preference_key),getString(R.string.popular));
+
         Uri.Builder builder = new Uri.Builder();
         builder.scheme("https")
                 .authority("api.themoviedb.org")
@@ -166,7 +166,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
                 .appendPath("movie")
                 .appendPath(criteria)
                 //here you add your api key, had to remove my own
-                .appendQueryParameter("api_key","d48eb72bb65495581cfe2b9ab8ec9d88")
+                .appendQueryParameter("api_key","")
                 .appendQueryParameter("language","en-US")
                 .appendQueryParameter("page","1").build();
         if(isConnected()){
@@ -221,10 +221,7 @@ public class MovieActivity extends AppCompatActivity implements LoaderManager.Lo
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            String Tag = "SHared Pref changed";
-
             String value = sharedPreferences.getString(getString(R.string.list_preference_key),"");
-            Log.d(Tag,value);
             if(value.equals(getString(R.string.favourited))){
                 new FavouriteAsyncTask().execute();
             }

@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -85,7 +86,9 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
         favourite_star = (ImageView) findViewById(R.id.favourite);
         details_layout = (LinearLayout) findViewById(R.id.details_layout);
         review_layout = (LinearLayout) findViewById(R.id.review_container);
+        //check to see what activity lanched this detail asctivity
         if(callingIntent.hasExtra("fav_movie")){
+
             String fav_movie = callingIntent.getStringExtra("fav_movie");
             favMovieUri = Uri.parse(fav_movie);
             details_layout = (LinearLayout) findViewById(R.id.details_layout);
@@ -124,6 +127,7 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
                 .appendPath(movie_id)
                 //here you add your api key, had to remove my own
                 .appendQueryParameter("api_key", "d48eb72bb65495581cfe2b9ab8ec9d88")
+                .appendQueryParameter("api_key", "8")
                 .appendQueryParameter("language", "en-US")
                 .appendQueryParameter("append_to_response","videos,reviews")
                 .appendQueryParameter("page", "1").build();
@@ -170,6 +174,28 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
         String review = movie.getReview();
         String reviewer = movie.getReviewer();
         final String video_link = movie.getVideo();
+        mTarget = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                favBitmap = bitmap;
+                imageView_details.setImageBitmap(bitmap);
+                imageView_details.setColorFilter(ContextCompat.getColor(DetailsActivity.this,R.color.backgroundColor), PorterDuff.Mode.MULTIPLY);
+
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                showError();
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        };
+        String imageUrl = ("https://image.tmdb.org/t/p/w185" + image);
+        Picasso.with(this).load(imageUrl).into(mTarget);
 
         if(favouritedMoviez == null){
             favourite_star.setColorFilter(ContextCompat.getColor(DetailsActivity.this,R.color.star_unchecked));
@@ -184,26 +210,8 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
                 }
             }
         }
-        String imageUrl = ("https://image.tmdb.org/t/p/w185" + image);
-        mTarget = new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                favBitmap = bitmap;
-                imageView_details.setImageBitmap(bitmap);
-            }
 
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
-                showError();
 
-            }
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-            }
-        };
-        Picasso.with(this).load(imageUrl).into(mTarget);
         imageView_details.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -243,6 +251,8 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
             public void onClick(View v) {
                 String Id = movie.getId();
                 if(favouritedMoviez == null || favouritedMoviez.size() == 0){
+                    //create an arrayList to store the ID's of favourited movies
+                    //and then store using sharedPreferences
                     favouritedMoviez = new ArrayList<String>();
                     favourite_star.setColorFilter(ContextCompat.getColor(DetailsActivity.this,R.color.samuel));
                     Toast.makeText(DetailsActivity.this,"Added to Favourites",Toast.LENGTH_SHORT).show();
@@ -262,10 +272,7 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
                     values.put(MovieContract.MovieEntry.COLUMN_RATING,movie.getUser_rating());
                     values.put(MovieContract.MovieEntry.COLUMN_RELEASEDATE,movie.getRelease_date());
                     starredUri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
-                    Log.e("Uri",starredUri.toString());
                     Cursor query = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
-                    Log.d("movies num in database","" + query.getCount());
-
 
                     return;
 
@@ -312,10 +319,7 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
                         values.put(MovieContract.MovieEntry.COLUMN_RATING,movie.getUser_rating());
                         values.put(MovieContract.MovieEntry.COLUMN_RELEASEDATE,movie.getRelease_date());
                         starredUri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
-                        Cursor query = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
-                        Log.d("movies num in database","" + query.getCount());
-
-                    }
+                      }
                 }
 
             }
@@ -362,6 +366,8 @@ public class DetailsActivity extends AppCompatActivity implements LoaderManager.
             synopsis_text.setText(synopsis);
             ratingBar_details.setRating(Float.parseFloat(rating) / 2);
 
+
+        imageView_details.setColorFilter(ContextCompat.getColor(DetailsActivity.this,R.color.backgroundColor), PorterDuff.Mode.MULTIPLY);
         imageView_details.setImageBitmap(BitmapUtil.getBitmap(image));
 
             imageView_details.setOnClickListener(new View.OnClickListener() {

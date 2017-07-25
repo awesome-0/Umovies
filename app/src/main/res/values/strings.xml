@@ -11,8 +11,10 @@
         <item>favourited</item>
     </string-array>
 
-    <string name="list_preference_key">sort_order</string>
-    <string name="top_rated">top_rated</string>
+    <string name="popular">popular</string>
+
+    <string name="list_preference_key" translatable="false">sort_order</string>
+
     <string name="settings">Settings</string>
     <string name="favourited">favourited</string>
     <string name="movies">Movies</string>
