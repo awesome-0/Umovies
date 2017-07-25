@@ -5,7 +5,7 @@ Moviez
 ## Getting Started
 
  This is basically an app that helps users to sort the order in which they view movies, upon clicking a movie
- you get to see details about the movie
+ you get to see details about the movie. They can also favourite a movie and the details of the movie will be saved to a databade for easy retrieval with or without internet connection
  
  
  
@@ -31,8 +31,7 @@ For developers, you will have to generate your own api key from the moviedb api
 **This is the settings screen that helps users to sort the order in which the movies are displayed**
 
 
-![settings](https://user-images.githubusercontent.com/24932953/28460032-197728ce-6e08-11e7-924f-203e8843cacb.png)
-
+![screenshot_2017-07-25-16-28-01](https://user-images.githubusercontent.com/24932953/28580834-8dd9d5a6-7158-11e7-85c8-745981a8038c.png)
 
 
 ## Built With
